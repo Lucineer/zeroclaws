@@ -1,0 +1,34 @@
+{
+  "turn": "turn-0001",
+  "agent": "helmsman",
+  "command_file": "helmsman-001.yaml",
+  "tightening_rounds": 4,
+  "all_passed": true,
+  "constraints": [
+    {
+      "constraint": "register_pressure",
+      "passes": true,
+      "error": 0.0,
+      "details": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'batch_material_eval' for 'sm_87'\nptxas info    : Function properties for batch_material_eval\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]\n"
+    },
+    {
+      "constraint": "syntax",
+      "passes": true,
+      "error": 0.0,
+      "details": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'batch_material_eval' for 'sm_87'\nptxas info    : Function properties for batch_material_eval\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]\n"
+    },
+    {
+      "constraint": "performance",
+      "passes": true,
+      "error": 0.0,
+      "details": "Performance gate: manual review required"
+    },
+    {
+      "constraint": "occupancy",
+      "passes": true,
+      "error": 0.0,
+      "details": "ptxas info    : 0 bytes gmem\nptxas info    : Compiling entry function 'batch_material_eval' for 'sm_87'\nptxas info    : Function properties for batch_material_eval\n    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads\nptxas info    : Used 8 registers, used 0 barriers, 368 bytes cmem[0]\n"
+    }
+  ],
+  "timestamp": "2026-04-16T13:28:10.067223+00:00"
+}

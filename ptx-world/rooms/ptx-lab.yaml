@@ -1,0 +1,48 @@
+name: PTX Lab
+version: '0.2'
+description: CUDA PTX assembly room. Agents submit PTX, CI compiles, constraints gate,
+  profiles learn.
+state:
+  total_compilations: 9
+  total_agents: 0
+  active_agents:
+  - helmsman
+  hardware_target: sm_87
+  max_ptx_size: 65536
+  max_turns_per_run: 50
+  created: '2026-04-15T20:35:00Z'
+  last_turn: null
+constraints:
+- id: syntax
+  description: PTX must compile with nvcc -ptx
+  tolerance: 0.0
+  timeout_seconds: 30
+- id: register_pressure
+  description: Register count ≤ 255 per thread
+  tolerance: 0.1
+  timeout_seconds: 30
+  params:
+    max_registers: 255
+    gpu_arch: sm_87
+- id: occupancy
+  description: Occupancy ≥ 25% for target GPU
+  tolerance: 0.2
+  timeout_seconds: 30
+  params:
+    min_occupancy: 25.0
+    gpu_arch: sm_87
+- id: performance
+  description: Performance ≥ baseline (requires benchmark harness)
+  tolerance: 0.3
+  timeout_seconds: 60
+  params:
+    baseline_ns: null
+security:
+  allowed_commands:
+  - nvcc
+  - ptxas
+  blocked_directives:
+  - .file
+  - .section
+  max_agent_name_length: 32
+  max_turns_per_agent_per_day: 100

@@ -1,0 +1,25 @@
+mission: esp32-chess-engine
+description: |
+  Build a CUDA chess evaluation kernel optimized for ESP32-level constraints.
+  The Helmsman writes and validates PTX kernels through the constraint gates.
+  The Tactician plays games under ESP32 constraints to identify which 
+  evaluation heuristics actually win at depth-2.
+  The Lookout monitors both rooms and synthesizes findings.
+  
+  Final deliverable: A PTX file containing a chess material+positional 
+  evaluation function that:
+  1. Passes all 4 constraint gates (syntax, register pressure, occupancy, performance)
+  2. Uses < 32 registers (ESP32 S3 SRAM constraint)
+  3. Achieves > 25% occupancy on Jetson sm_87
+  4. Has been validated by 50+ chess games showing it beats random play
+
+stations:
+  - helmsman (PTX Room): Write and validate evaluation kernels
+  - tactician (Chess Dojo): Play games, identify winning patterns
+  - lookout (Bridge): Synthesize, broadcast, document
+
+protocol: git-native-mud
+  - Each station writes commands to their room's world/commands/
+  - CI processes turns, updates world state
+  - Lookout reads world/ state from both rooms
+  - Findings broadcast via PLATO pub channel

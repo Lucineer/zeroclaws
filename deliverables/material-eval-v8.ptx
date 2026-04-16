@@ -1,0 +1,44 @@
+.version 8.5
+.target sm_87
+.address_size 64
+
+// Batch material evaluation — 512 threads, 8 boards of 64 squares each
+// Thread layout: tid = board_idx * 64 + square_idx
+// board_idx = tid / 64, square_idx = tid % 64
+
+.visible .entry batch_material_eval(
+    .param .u64 boards_ptr,    // pointer to 8 board arrays (each 64 uint32)
+    .param .u64 scores_ptr     // pointer to 8 score outputs
+)
+.maxntid 512, 1, 1
+{
+    .reg .u32 %r<8>;
+    .reg .b64 %rd<6>;
+    .reg .pred %p<3>;
+
+    mov.u32 %r1, %tid.x;
+    setp.ge.u32 %p1, %r1, 512;
+    @%p1 bra DONE;
+
+    // Decode board_idx and square_idx
+    shr.u32 %r2, %r1, 6;           // board_idx = tid / 64
+    and.b32 %r3, %r1, 63;          // square_idx = tid & 63
+
+    // Load board pointer for this board
+    ld.param.u64 %rd1, [boards_ptr];
+    mul.wide.u32 %rd2, %r2, 8;     // board_ptr_offset = board_idx * 8 (ptr size)
+    // Actually boards_ptr should be an array of pointers
+    // Simpler: boards_ptr points to contiguous 8*64 uint32 array
+    mul.wide.u32 %rd2, %r1, 4;     // byte offset = tid * 4
+    add.u64 %rd3, %rd1, %rd2;
+    ld.global.u32 %r4, [%rd3];      // piece value
+
+    // Atomic add to this board's score
+    ld.param.u64 %rd4, [scores_ptr];
+    mul.wide.u32 %rd5, %r2, 4;     // score offset = board_idx * 4
+    add.u64 %rd5, %rd4, %rd5;
+    atom.global.add.u32 %r5, [%rd5], %r4;
+
+DONE:
+    ret;
+}

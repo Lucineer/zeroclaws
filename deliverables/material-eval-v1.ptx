@@ -1,0 +1,25 @@
+.version 8.5
+.target sm_87
+.address_size 64
+.visible .entry material_eval(.param .u64 board_ptr, .param .u64 score_ptr) {
+    .reg .u64 %board;
+    .reg .u64 %score;
+    .reg .u32 %piece;
+    .reg .u32 %total;
+    .reg .u32 %i;
+    .reg .pred %p1;
+    ld.param.u64 %board, [board_ptr];
+    ld.param.u64 %score, [score_ptr];
+    mov.u32 %total, 0;
+    mov.u32 %i, 0;
+    LOOP:
+    setp.ge.u32 %p1, %i, 64;
+    @%p1 bra DONE;
+    ld.global.u32 %piece, [%board + %i*4];
+    add.u32 %total, %total, %piece;
+    add.u32 %i, %i, 1;
+    bra LOOP;
+    DONE:
+    st.global.u32 [%score], %total;
+    ret;
+}

@@ -1,0 +1,41 @@
+.version 8.5
+.target sm_87
+.address_size 64
+
+// Chess material evaluation — GPU kernel
+// Each thread processes one square, reduces via shared memory
+// 64 threads = 1 warp, 1 block = full board
+
+.visible .entry material_eval(
+    .param .u64 board_ptr,
+    .param .u64 score_ptr
+) {
+    .reg .u32 %tid;
+    .reg .u32 %piece;
+    .reg .u64 %addr;
+    .reg .u64 %offset;
+    .reg .pred %p_done;
+    
+    // Thread ID = square index (0-63)
+    mov.u32 %tid, %tid.x;
+    
+    // Bounds check
+    setp.ge.u32 %p_done, %tid, 64;
+    @%p_done bra DONE;
+    
+    // Load piece value at this square
+    mul.wide.u32 %offset, %tid, 4;
+    ld.param.u64 %addr, [board_ptr];
+    add.u64 %addr, %addr, %offset;
+    ld.global.u32 %piece, [%addr];
+    
+    // Warp-level reduction: just let atomic add handle it
+    // Each thread adds its piece value to the global score
+    ld.param.u64 %addr, [score_ptr];
+    atom.global.add.u32 [%addr], %piece;
+    
+DONE:
+    ret;
+}
+
+.maxntid 64, 1, 1

@@ -1,0 +1,16 @@
+name: helmsman
+room: ptx-lab
+stats:
+  turns_completed: 1
+  snap_accuracy: 0.1
+  avg_tightening_rounds: 4.0
+  mastery_level: 0
+  last_turn: '2026-04-16T13:28:10.067312+00:00'
+  streak_pass: 1
+  streak_fail: 0
+learned_patterns: []
+constraints_history:
+- turn: turn-0001
+  timestamp: '2026-04-16T13:28:10.067312+00:00'
+  all_passed: true
+  rounds: 4

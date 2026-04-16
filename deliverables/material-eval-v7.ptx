@@ -1,0 +1,32 @@
+.version 8.5
+.target sm_87
+.address_size 64
+
+.visible .entry material_eval(
+    .param .u64 board_ptr,
+    .param .u64 score_ptr
+)
+.maxntid 64, 1, 1
+{
+    .reg .u32 %r<5>;
+    .reg .b64 %rd<5>;
+    .reg .pred %p<2>;
+
+    ld.param.u64 %rd1, [board_ptr];
+    ld.param.u64 %rd2, [score_ptr];
+    cvta.to.global.u64 %rd3, %rd1;
+    cvta.to.global.u64 %rd4, %rd2;
+    
+    mov.u32 %r1, %tid.x;
+    setp.ge.u32 %p1, %r1, 64;
+    @%p1 bra DONE;
+    
+    mul.wide.u32 %rd1, %r1, 4;
+    add.u64 %rd1, %rd3, %rd1;
+    ld.global.u32 %r2, [%rd1];
+    
+    atom.global.add.u32 %r3, [%rd4], %r2;
+    
+DONE:
+    ret;
+}

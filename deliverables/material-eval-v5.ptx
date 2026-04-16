@@ -1,0 +1,31 @@
+.version 8.5
+.target sm_87
+.address_size 64
+
+.visible .entry material_eval(
+    .param .u64 board_ptr,
+    .param .u64 score_ptr
+) {
+    .reg .u32 %tid;
+    .reg .u32 %piece;
+    .reg .u64 %addr;
+    .reg .u64 %offset;
+    .reg .pred %p_skip;
+    
+    mov.u32 %tid, %tid.x;
+    setp.ge.u32 %p_skip, %tid, 64;
+    @%p_skip bra DONE;
+    
+    mul.wide.u32 %offset, %tid, 4;
+    ld.param.u64 %addr, [board_ptr];
+    add.u64 %addr, %addr, %offset;
+    ld.global.u32 %piece, [%addr];
+    
+    ld.param.u64 %addr, [score_ptr];
+    atom.global.add.s32 [%addr], %piece;
+    
+DONE:
+    ret;
+}
+
+.maxntid 64, 1, 1

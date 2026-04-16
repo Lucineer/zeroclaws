@@ -1,0 +1,42 @@
+.version 8.5
+.target sm_87
+.address_size 64
+
+// Material evaluation kernel
+// Input: board_ptr points to 64 uint32 piece values
+// Output: score_ptr gets the total material score
+// Piece encoding: 0=empty, 100=pawn, 320=knight, 330=bishop, 500=rook, 900=queen, 20000=king
+
+.visible .entry material_eval(
+    .param .u64 board_ptr,
+    .param .u64 score_ptr
+) {
+    .reg .u64 %r_board;
+    .reg .u64 %r_score;
+    .reg .u64 %r_addr;
+    .reg .u32 %r_piece;
+    .reg .u32 %r_total;
+    .reg .u32 %r_idx;
+    .reg .u32 %r_offset;
+    .reg .pred %p_done;
+
+    ld.param.u64 %r_board, [board_ptr];
+    ld.param.u64 %r_score, [score_ptr];
+    mov.u32 %r_total, 0;
+    mov.u32 %r_idx, 0;
+
+LOOP:
+    setp.ge.u32 %p_done, %r_idx, 64;
+    @%p_done bra DONE;
+
+    mul.lo.u32 %r_offset, %r_idx, 4;
+    add.u64 %r_addr, %r_board, %r_offset;
+    ld.global.u32 %r_piece, [%r_addr];
+    add.u32 %r_total, %r_total, %r_piece;
+    add.u32 %r_idx, %r_idx, 1;
+    bra LOOP;
+
+DONE:
+    st.global.u32 [%r_score], %r_total;
+    ret;
+}
